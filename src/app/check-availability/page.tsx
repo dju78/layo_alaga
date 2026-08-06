@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Calendar as CalendarIcon, CheckCircle2, AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
 import CheckAvailabilityClient from './CheckAvailabilityClient';
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function CheckAvailabilityPage() {
   const confirmedBookings = await db.booking.findMany({
