@@ -1,0 +1,435 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  PLATFORM_ADMIN
+  BUSINESS_OWNER
+  BOOKING_MANAGER
+  FINANCE_MANAGER
+  INVENTORY_MANAGER
+  EVENT_COORDINATOR
+  READONLY_STAFF
+}
+
+enum BookingStatus {
+  ENQUIRY_RECEIVED
+  AWAITING_REVIEW
+  AWAITING_QUOTATION
+  QUOTATION_SENT
+  CUSTOMER_REQUESTED_CHANGES
+  AWAITING_DEPOSIT
+  BOOKING_CONFIRMED
+  PREPARATION_IN_PROGRESS
+  EVENT_COMPLETED
+  CANCELLED
+  ARCHIVED
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  REVISED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CARD
+  CASH
+  DEMO
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentType {
+  DEPOSIT
+  PART_PAYMENT
+  FULL_PAYMENT
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         Role          @default(BOOKING_MANAGER)
+  avatar       String?
+  active       Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  statusHistory BookingStatusHistory[]
+  payments      Payment[]              @relation("VerifiedPayments")
+  refunds       Refund[]               @relation("ProcessedRefunds")
+  documents     Document[]
+  auditLogs     AuditLog[]
+  staffProfile  StaffProfile?
+}
+
+model Customer {
+  id               String    @id @default(uuid())
+  name             String
+  email            String
+  phone            String
+  whatsapp         String?
+  preferredContact String    @default("WhatsApp")
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  bookings         Booking[]
+}
+
+model Service {
+  id               String           @id @default(uuid())
+  name             String
+  slug             String           @unique
+  category         String
+  shortDescription String
+  fullDescription  String
+  startingPrice    Int              @default(0) // Minor units or integer Naira
+  duration         String           @default("Full Event Duration")
+  includedItems    String           @default("[]") // JSON string array
+  customerProvides String           @default("[]") // JSON string array
+  images           String           @default("[]") // JSON string array
+  active           Boolean          @default(true)
+  featured         Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  bookingServices  BookingService[]
+}
+
+model RentalCategory {
+  id          String       @id @default(uuid())
+  name        String
+  slug        String       @unique
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  items       RentalItem[]
+}
+
+model RentalItem {
+  id                 String                     @id @default(uuid())
+  categoryId         String
+  category           RentalCategory             @relation(fields: [categoryId], references: [id])
+  name               String
+  slug               String                     @unique
+  description        String
+  images             String                     @default("[]")
+  totalQuantity      Int                        @default(100)
+  availableQuantity  Int                        @default(100)
+  reservedQuantity   Int                        @default(0)
+  maintenanceQuantity Int                       @default(0)
+  rentalPrice        Int                        @default(0)
+  pricingUnit        String                     @default("per day")
+  refundableDeposit  Int                        @default(0)
+  deliveryCharge     Int                        @default(0)
+  setupCharge        Int                        @default(0)
+  minimumOrder       Int                        @default(1)
+  condition          String                     @default("Excellent")
+  active             Boolean                    @default(true)
+  featured           Boolean                    @default(false)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  reservationItems   RentalReservationItem[]
+}
+
+model Booking {
+  id                      String                 @id @default(uuid())
+  reference               String                 @unique
+  customerId              String
+  customer                Customer               @relation(fields: [customerId], references: [id])
+  status                  BookingStatus          @default(ENQUIRY_RECEIVED)
+  accessToken             String                 @unique @default(uuid())
+  eventType               String
+  eventDate               DateTime
+  startTime               String
+  endTime                 String
+  venueName               String
+  venueAddress            String
+  city                    String
+  state                   String
+  country                 String                 @default("Nigeria")
+  expectedGuestCount      Int                    @default(100)
+  isOutdoor               Boolean                @default(false)
+  preferredLanguage       String                 @default("English & Yoruba")
+  eventColorTheme         String?
+  notes                   String?
+  specialRequests         String?
+  accessibilityRequirements String?
+  venueImages             String                 @default("[]")
+  inspirationImages       String                 @default("[]")
+  referralSource          String?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  services                BookingService[]
+  reservations            RentalReservation[]
+  statusHistory           BookingStatusHistory[]
+  quotations              Quotation[]
+  payments                Payment[]
+  documents               Document[]
+  staffAssignments        StaffAssignment[]
+}
+
+model BookingService {
+  id          String   @id @default(uuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id])
+  customPrice Int?
+  notes       String?
+
+  @@unique([bookingId, serviceId])
+}
+
+model RentalReservation {
+  id               String                  @id @default(uuid())
+  bookingId        String
+  booking          Booking                 @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status           String                  @default("RESERVED")
+  startDate        DateTime
+  endDate          DateTime
+  deliveryRequired Boolean                 @default(true)
+  setupRequired    Boolean                 @default(true)
+  deliveryAddress  String?
+  notes            String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  items            RentalReservationItem[]
+}
+
+model RentalReservationItem {
+  id                String            @id @default(uuid())
+  reservationId     String
+  reservation       RentalReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  rentalItemId      String
+  rentalItem        RentalItem        @relation(fields: [rentalItemId], references: [id])
+  quantity          Int
+  unitPrice         Int
+  refundableDeposit Int               @default(0)
+  subtotal          Int
+}
+
+model BookingStatusHistory {
+  id              String        @id @default(uuid())
+  bookingId       String
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  previousStatus  BookingStatus
+  newStatus       BookingStatus
+  changedByUserId String?
+  changedByUser   User?         @relation(fields: [changedByUserId], references: [id])
+  reason          String?
+  internalNote    String?
+  createdAt       DateTime      @default(now())
+}
+
+model Quotation {
+  id                 String              @id @default(uuid())
+  quotationNumber    String              @unique
+  bookingId          String
+  booking            Booking             @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  version            Int                 @default(1)
+  status             QuotationStatus     @default(DRAFT)
+  serviceCharges     Int                 @default(0)
+  equipmentCharges   Int                 @default(0)
+  deliveryCharges    Int                 @default(0)
+  setupCharges       Int                 @default(0)
+  transportCosts     Int                 @default(0)
+  discounts          Int                 @default(0)
+  tax                Int                 @default(0)
+  subtotal           Int                 @default(0)
+  totalAmount        Int                 @default(0)
+  depositRequired    Int                 @default(0)
+  outstandingBalance Int                 @default(0)
+  paymentDeadline    DateTime?
+  expiryDate         DateTime?
+  termsAndConditions String?
+  adminNotes         String?
+  customerNotes      String?
+  pdfPath            String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  versions           QuotationVersion[]
+  decisions          QuotationDecision[]
+  payments           Payment[]
+}
+
+model QuotationVersion {
+  id            String    @id @default(uuid())
+  quotationId   String
+  quotation     Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  snapshotData  String    // JSON string representation
+  createdAt     DateTime  @default(now())
+}
+
+model QuotationDecision {
+  id               String    @id @default(uuid())
+  quotationId      String
+  quotation        Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  decision         String    // ACCEPTED, REJECTED, CHANGES_REQUESTED
+  customerName     String
+  comment          String?
+  quotationVersion Int
+  createdAt        DateTime  @default(now())
+}
+
+model Payment {
+  id                 String        @id @default(uuid())
+  paymentReference   String        @unique
+  bookingId          String
+  booking            Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  quotationId        String?
+  quotation          Quotation?    @relation(fields: [quotationId], references: [id])
+  amount             Int
+  paymentMethod      PaymentMethod @default(BANK_TRANSFER)
+  paymentStatus      PaymentStatus @default(PENDING)
+  paymentType        PaymentType   @default(DEPOSIT)
+  receiptUrl         String?
+  proofOfPaymentUrl  String?
+  notes              String?
+  verifiedByUserId   String?
+  verifiedByUser     User?         @relation("VerifiedPayments", fields: [verifiedByUserId], references: [id])
+  verifiedAt         DateTime?
+  transactionId      String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  refunds            Refund[]
+}
+
+model Refund {
+  id                String   @id @default(uuid())
+  paymentId         String
+  payment           Payment  @relation(fields: [paymentId], references: [id])
+  amount            Int
+  reason            String
+  status            String   @default("COMPLETED")
+  processedByUserId String?
+  processedByUser   User?    @relation("ProcessedRefunds", fields: [processedByUserId], references: [id])
+  createdAt         DateTime @default(now())
+}
+
+model StaffProfile {
+  id        String   @id @default(uuid())
+  userId    String?  @unique
+  user      User?    @relation(fields: [userId], references: [id])
+  fullName  String
+  roleTitle String
+  phone     String
+  email     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  assignments StaffAssignment[]
+}
+
+model StaffAssignment {
+  id             String       @id @default(uuid())
+  bookingId      String
+  booking        Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  staffProfileId String
+  staffProfile   StaffProfile @relation(fields: [staffProfileId], references: [id])
+  role           String       @default("Lead Coordinator")
+  notes          String?
+  assignedAt     DateTime     @default(now())
+}
+
+model Document {
+  id              String   @id @default(uuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  title           String
+  fileUrl         String
+  fileType        String
+  fileSize        Int      @default(0)
+  uploadedByUserId String?
+  uploadedByUser  User?    @relation(fields: [uploadedByUserId], references: [id])
+  createdAt       DateTime @default(now())
+}
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  title     String
+  caption   String?
+  category  String   @default("Ceremony")
+  imageUrl  String
+  featured  Boolean  @default(false)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id            String   @id @default(uuid())
+  customerName  String
+  eventType     String
+  review        String
+  rating        Int      @default(5)
+  photographUrl String?
+  isApproved    Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model Notification {
+  id             String   @id @default(uuid())
+  recipientEmail String?
+  recipientPhone String?
+  type           String
+  title          String
+  message        String
+  channel        String   @default("Email")
+  status         String   @default("SENT")
+  sentAt         DateTime @default(now())
+  createdAt      DateTime @default(now())
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  userEmail      String?
+  action         String
+  targetResource String
+  details        String   @default("{}") // JSON string
+  createdAt      DateTime @default(now())
+}
+
+model ApplicationSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model AvailabilityBlock {
+  id              String   @id @default(uuid())
+  startDate       DateTime
+  endDate         DateTime
+  reason          String
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+}

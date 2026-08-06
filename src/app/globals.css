@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  /* Alaga Alayo Primary Brand Tokens */
+  --color-plum-900: #32113C;
+  --color-plum-800: #4A175B;
+  --color-plum-700: #652278;
+  --color-plum-600: #7B328F;
+  --color-plum-100: #F1E8F4;
+  --color-plum-50:  #FAF7FB;
+
+  /* Accent Tokens */
+  --color-gold-500: #C99A3D;
+  --color-gold-100: #F8EFD9;
+  --color-rose-500: #B84C73;
+  --color-rose-100: #FAEAF0;
+
+  /* Neutral Tokens */
+  --color-neutral-950: #17131A;
+  --color-neutral-700: #514B54;
+  --color-neutral-500: #7E7781;
+  --color-neutral-300: #D8D3DA;
+  --color-neutral-200: #E8E4E9;
+  --color-neutral-100: #F4F2F5;
+  --color-white:       #FFFFFF;
+
+  /* Status Tokens */
+  --color-success:    #247A52;
+  --color-success-bg: #E7F5EE;
+  --color-warning:    #A66514;
+  --color-warning-bg: #FFF4DF;
+  --color-error:      #B83B42;
+  --color-error-bg:   #FDEBEC;
+  --color-info:       #3765A3;
+  --color-info-bg:    #EAF2FC;
+
+  /* Shadows */
+  --shadow-card: 0 8px 24px rgba(50, 17, 60, 0.08);
+  --shadow-hover: 0 14px 36px rgba(50, 17, 60, 0.12);
+  --shadow-modal: 0 24px 64px rgba(23, 19, 26, 0.18);
+}
+
+@theme {
+  --color-plum-900: var(--color-plum-900);
+  --color-plum-800: var(--color-plum-800);
+  --color-plum-700: var(--color-plum-700);
+  --color-plum-600: var(--color-plum-600);
+  --color-plum-100: var(--color-plum-100);
+  --color-plum-50: var(--color-plum-50);
+
+  --color-gold-500: var(--color-gold-500);
+  --color-gold-100: var(--color-gold-100);
+  --color-rose-500: var(--color-rose-500);
+  --color-rose-100: var(--color-rose-100);
+
+  --color-neutral-950: var(--color-neutral-950);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-100: var(--color-neutral-100);
+
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-script: var(--font-allura), cursive;
+}
+
+body {
+  background-color: #FFFFFF;
+  color: #17131A;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  color: #32113C;
+  line-height: 1.15;
+}
+
+.font-script {
+  font-family: var(--font-allura), cursive;
+}
+
+/* Custom Card Hover Effect */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: #652278;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4F2F5;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8D3DA;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #652278;
+}
