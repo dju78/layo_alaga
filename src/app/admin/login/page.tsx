@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
               <p className="text-xs font-semibold text-[#652278] mb-2 uppercase tracking-wider">Demo Credentials</p>
               <div className="space-y-1 text-xs text-[#514B54]">
                 <p><span className="font-medium">Email:</span> admin@alagaalayo.com</p>
-                <p><span className="font-medium">Password:</span> Admin@123!</p>
+                <p><span className="font-medium">Password:</span> AdminPassword2026!</p>
               </div>
             </div>
           </div>
