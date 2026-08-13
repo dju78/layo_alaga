@@ -7,7 +7,7 @@ export default function SettingsClient() {
   const [companyName, setCompanyName] = useState('Alaga Alayo Events & Rentals');
   const [phone, setPhone] = useState('+234 802 123 4567');
   const [whatsapp, setWhatsapp] = useState('+234 802 123 4567');
-  const [email, setEmail] = useState('info@alagaalayo.com');
+  const [email, setEmail] = useState('alagaalayo@gmail.com');
   const [address, setAddress] = useState('Lagos State, Nigeria');
   const [bankName, setBankName] = useState('Guaranty Trust Bank (GTBank)');
   const [accountNumber, setAccountNumber] = useState('0123456789');

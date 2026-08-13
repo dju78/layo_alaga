@@ -10,20 +10,26 @@ import { Sparkles, Calendar, CheckCircle2, ShieldCheck, Star, ArrowRight, Messag
 export const revalidate = 60; // Refresh every 60 seconds
 
 export default async function HomePage() {
-  const featuredServices = await db.service.findMany({
-    where: { active: true, featured: true },
-    take: 3,
-  });
+  let featuredServices: Array<any> = [];
+  let featuredRentals: Array<any> = [];
+  let testimonials: Array<any> = [];
 
-  const featuredRentals = await db.rentalItem.findMany({
-    where: { active: true, featured: true },
-    take: 4,
-  });
-
-  const testimonials = await db.testimonial.findMany({
-    where: { isApproved: true, isFeatured: true },
-    take: 3,
-  });
+  try {
+    featuredServices = await db.service.findMany({
+      where: { active: true, featured: true },
+      take: 3,
+    });
+    featuredRentals = await db.rentalItem.findMany({
+      where: { active: true, featured: true },
+      take: 4,
+    });
+    testimonials = await db.testimonial.findMany({
+      where: { isApproved: true, isFeatured: true },
+      take: 3,
+    });
+  } catch (e) {
+    console.warn('Database query failed on HomePage:', e);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

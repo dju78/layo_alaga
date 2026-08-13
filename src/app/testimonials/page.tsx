@@ -6,10 +6,15 @@ import { Star } from 'lucide-react';
 export const revalidate = 60;
 
 export default async function TestimonialsPage() {
-  const testimonials = await db.testimonial.findMany({
-    where: { isApproved: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  let testimonials: Array<{ id: string; customerName: string; eventType: string; review: string; rating: number }> = [];
+  try {
+    testimonials = await db.testimonial.findMany({
+      where: { isApproved: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (e) {
+    console.warn('Database query failed for testimonials:', e);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

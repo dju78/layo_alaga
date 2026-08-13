@@ -5,10 +5,15 @@ import db from '@/lib/db';
 export const revalidate = 60;
 
 export default async function GalleryPage() {
-  const galleryItems = await db.galleryItem.findMany({
-    where: { active: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  let galleryItems: Array<{ id: string; title: string; caption: string | null; category: string; imageUrl: string }> = [];
+  try {
+    galleryItems = await db.galleryItem.findMany({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (e) {
+    console.warn('Database query failed for gallery items:', e);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

@@ -9,10 +9,15 @@ import { ArrowRight, CheckCircle2, MessageCircle, Sparkles } from 'lucide-react'
 export const revalidate = 60;
 
 export default async function ServicesPage() {
-  const services = await db.service.findMany({
-    where: { active: true },
-    orderBy: { name: 'asc' },
-  });
+  let services: Array<{ id: string; name: string; slug: string; category: string; shortDescription: string; fullDescription: string; startingPrice: number; duration: string; includedItems: string; customerProvides: string; images: string; active: boolean; featured: boolean; createdAt: Date; updatedAt: Date }> = [];
+  try {
+    services = await db.service.findMany({
+      where: { active: true },
+      orderBy: { name: 'asc' },
+    });
+  } catch (e) {
+    console.warn('Database query failed for services:', e);
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white">

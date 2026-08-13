@@ -61,7 +61,7 @@ export default function Footer() {
                 <InstagramIcon className="w-4 h-4 text-pink-400" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/meseko.omolayo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-[#4A175B] hover:bg-[#652278] flex items-center justify-center text-white transition-colors"
@@ -114,7 +114,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-[#C99A3D] mt-0.5 shrink-0" />
-                <span>info@alagaalayo.com</span>
+                <span>alagaalayo@gmail.com</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C99A3D] mt-0.5 shrink-0" />
