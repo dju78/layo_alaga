@@ -1,8 +1,18 @@
 import { jsPDF } from 'jspdf';
 import { formatCurrency, formatDate } from './formatters';
+import { BusinessSettings, DEFAULT_SETTINGS } from './settings';
 
-export function generateQuotationPDF(quotation: any): Buffer {
+export function generateQuotationPDF(quotation: any, settings: BusinessSettings = DEFAULT_SETTINGS): Buffer {
   const doc = new jsPDF();
+
+  const companyName = (settings.BUSINESS_NAME || 'ALAGA ALAYO EVENTS & RENTALS').toUpperCase();
+  const companySlogan = settings.BUSINESS_SLOGAN || 'Your Event. My Passion.';
+  const bankName = settings.BANK_NAME || 'Guaranty Trust Bank (GTBank)';
+  const accountName = settings.BANK_ACCOUNT_NAME || 'Alaga Alayo Events Limited';
+  const accountNumber = settings.BANK_ACCOUNT_NUMBER || '0123456789';
+  const phone1 = settings.BUSINESS_PHONE_1 || '0807 302 1840';
+  const phone2 = settings.BUSINESS_PHONE_2 ? ` / ${settings.BUSINESS_PHONE_2}` : '';
+  const whatsapp = settings.BUSINESS_WHATSAPP || '0807 302 1840';
 
   // Header Banner
   doc.setFillColor(50, 17, 60); // Deep Plum #32113C
@@ -10,12 +20,12 @@ export function generateQuotationPDF(quotation: any): Buffer {
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.text('ALAGA ALAYO EVENTS & RENTALS', 15, 20);
+  doc.setFontSize(18);
+  doc.text(companyName, 15, 20);
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(10);
-  doc.text('Your Event. My Passion.', 15, 28);
+  doc.text(companySlogan, 15, 28);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
@@ -78,6 +88,8 @@ export function generateQuotationPDF(quotation: any): Buffer {
   doc.line(15, y, 195, y);
   y += 10;
 
+  const depositPercent = settings.DEFAULT_DEPOSIT_PERCENTAGE || '50';
+
   // Summary Totals
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
@@ -86,7 +98,7 @@ export function generateQuotationPDF(quotation: any): Buffer {
 
   y += 8;
   doc.setTextColor(36, 122, 82); // Green
-  doc.text('Required Deposit (50%):', 110, y);
+  doc.text(`Required Deposit (${depositPercent}%):`, 110, y);
   doc.text(formatCurrency(quotation.depositRequired), 195, y, { align: 'right' });
 
   y += 8;
@@ -104,22 +116,28 @@ export function generateQuotationPDF(quotation: any): Buffer {
   doc.text('PAYMENT INSTRUCTIONS & BANK DETAILS', 20, y + 8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(23, 19, 26);
-  doc.text('Bank Name: Guaranty Trust Bank (GTBank)', 20, y + 16);
-  doc.text('Account Name: Alaga Alayo Events Limited', 20, y + 22);
-  doc.text('Account Number: 0123456789', 20, y + 28);
+  doc.text(`Bank Name: ${bankName}`, 20, y + 16);
+  doc.text(`Account Name: ${accountName}`, 20, y + 22);
+  doc.text(`Account Number: ${accountNumber}`, 20, y + 28);
   doc.text(`Reference Note: Please use quote reference ${quotation.quotationNumber} for transfers.`, 20, y + 34);
 
   // Footer
   doc.setFontSize(8);
   doc.setTextColor(126, 119, 129);
-  doc.text('Alaga Alayo Events & Rentals • Tel: 0807 302 1840 / 0806 099 8745 • WhatsApp: 0807 302 1840', 105, 285, { align: 'center' });
+  doc.text(`${settings.BUSINESS_NAME || 'Alaga Alayo Events & Rentals'} • Tel: ${phone1}${phone2} • WhatsApp: ${whatsapp}`, 105, 285, { align: 'center' });
 
   const pdfArrayBuffer = doc.output('arraybuffer');
   return Buffer.from(pdfArrayBuffer);
 }
 
-export function generateReceiptPDF(payment: any): Buffer {
+export function generateReceiptPDF(payment: any, settings: BusinessSettings = DEFAULT_SETTINGS): Buffer {
   const doc = new jsPDF();
+
+  const companyName = (settings.BUSINESS_NAME || 'ALAGA ALAYO EVENTS & RENTALS').toUpperCase();
+  const companySlogan = settings.BUSINESS_SLOGAN || 'Your Event. My Passion.';
+  const phone1 = settings.BUSINESS_PHONE_1 || '0807 302 1840';
+  const phone2 = settings.BUSINESS_PHONE_2 ? ` / ${settings.BUSINESS_PHONE_2}` : '';
+  const whatsapp = settings.BUSINESS_WHATSAPP || '0807 302 1840';
 
   // Header Banner
   doc.setFillColor(50, 17, 60);
@@ -127,12 +145,12 @@ export function generateReceiptPDF(payment: any): Buffer {
 
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.text('ALAGA ALAYO EVENTS & RENTALS', 15, 20);
+  doc.setFontSize(18);
+  doc.text(companyName, 15, 20);
 
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(10);
-  doc.text('Your Event. My Passion.', 15, 28);
+  doc.text(companySlogan, 15, 28);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
@@ -174,9 +192,10 @@ export function generateReceiptPDF(payment: any): Buffer {
   // Footer
   doc.setFontSize(8);
   doc.setTextColor(126, 119, 129);
-  doc.text('Thank you for choosing Alaga Alayo Events & Rentals!', 105, 275, { align: 'center' });
-  doc.text('Alaga Alayo Events & Rentals • Tel: 0807 302 1840 / 0806 099 8745 • WhatsApp: 0807 302 1840', 105, 285, { align: 'center' });
+  doc.text(`Thank you for choosing ${settings.BUSINESS_NAME || 'Alaga Alayo Events & Rentals'}!`, 105, 275, { align: 'center' });
+  doc.text(`${settings.BUSINESS_NAME || 'Alaga Alayo Events & Rentals'} • Tel: ${phone1}${phone2} • WhatsApp: ${whatsapp}`, 105, 285, { align: 'center' });
 
   const pdfArrayBuffer = doc.output('arraybuffer');
   return Buffer.from(pdfArrayBuffer);
 }
+

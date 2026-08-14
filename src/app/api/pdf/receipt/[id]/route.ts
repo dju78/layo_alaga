@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { generateReceiptPDF } from '@/lib/pdf';
+import { getBusinessSettings } from '@/lib/settings';
 
 export async function GET(
   req: NextRequest,
@@ -23,7 +24,8 @@ export async function GET(
       return new NextResponse('Payment record not found', { status: 404 });
     }
 
-    const pdfBuffer = generateReceiptPDF(payment);
+    const settings = await getBusinessSettings();
+    const pdfBuffer = generateReceiptPDF(payment, settings);
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,

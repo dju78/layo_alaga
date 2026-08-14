@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Phone, Mail, MapPin, MessageCircle } from 'lucide-react';
-import { getGeneralWhatsAppLink } from '@/lib/whatsapp';
+import { getGeneralWhatsAppLink, getWhatsAppLink } from '@/lib/whatsapp';
+import { getBusinessSettings } from '@/lib/settings';
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -20,7 +21,26 @@ function FacebookIcon({ className }: { className?: string }) {
   );
 }
 
-export default function Footer() {
+export default async function Footer() {
+  const settings = await getBusinessSettings();
+
+  const companyName = settings.BUSINESS_NAME || 'ALAGA ALAYO';
+  const slogan = settings.BUSINESS_SLOGAN || 'Your Event. My Passion.';
+  const email = settings.BUSINESS_EMAIL || 'alagaalayo@gmail.com';
+  const address = settings.BUSINESS_ADDRESS || 'Lagos, Nigeria (Servicing Nationwide)';
+  const phone1 = settings.BUSINESS_PHONE_1 || '0807 302 1840';
+  const phone2 = settings.BUSINESS_PHONE_2 ? ` / ${settings.BUSINESS_PHONE_2}` : '';
+  const whatsappNum = settings.BUSINESS_WHATSAPP || '0807 302 1840';
+  const facebookUrl = settings.BUSINESS_FACEBOOK || 'https://www.facebook.com/meseko.omolayo';
+  const instagramUrl = settings.BUSINESS_INSTAGRAM?.startsWith('http')
+    ? settings.BUSINESS_INSTAGRAM
+    : `https://instagram.com/${settings.BUSINESS_INSTAGRAM?.replace('@', '') || 'alaga_alayo'}`;
+
+  const whatsappLink = getWhatsAppLink(
+    'Hello Alaga Alayo, I would like to enquire about booking your services for my event.',
+    whatsappNum
+  );
+
   return (
     <footer className="bg-[#32113C] text-white pt-16 pb-12 border-t border-[#4A175B]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,18 +52,18 @@ export default function Footer() {
                 AA
               </div>
               <span className="font-serif text-2xl font-bold text-white tracking-wide">
-                ALAGA ALAYO
+                {companyName}
               </span>
             </div>
             <p className="font-script text-2xl text-[#C99A3D] mb-4">
-              “Your Event. My Passion.”
+              “{slogan}”
             </p>
             <p className="text-sm text-gray-300 leading-relaxed mb-6">
               Professional Alaga Iduro, Alaga Ijoko, Master of Ceremonies and premium event equipment rentals. Delivering warmth, cultural excellence and vibrant memories.
             </p>
             <div className="flex space-x-3">
               <a
-                href={getGeneralWhatsAppLink()}
+                href={whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-[#4A175B] hover:bg-[#652278] flex items-center justify-center text-white transition-colors"
@@ -52,7 +72,7 @@ export default function Footer() {
                 <MessageCircle className="w-4 h-4 text-[#247A52]" />
               </a>
               <a
-                href="https://instagram.com/alaga_alayo"
+                href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-[#4A175B] hover:bg-[#652278] flex items-center justify-center text-white transition-colors"
@@ -61,7 +81,7 @@ export default function Footer() {
                 <InstagramIcon className="w-4 h-4 text-pink-400" />
               </a>
               <a
-                href="https://www.facebook.com/meseko.omolayo"
+                href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-[#4A175B] hover:bg-[#652278] flex items-center justify-center text-white transition-colors"
@@ -93,12 +113,12 @@ export default function Footer() {
               Event Rentals
             </h4>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><Link href="/rentals?category=chairs" className="hover:text-white transition-colors">Gold & Dior Chairs</Link></li>
-              <li><Link href="/rentals?category=tables" className="hover:text-white transition-colors">Banquet & VIP Tables</Link></li>
-              <li><Link href="/rentals?category=canopies" className="hover:text-white transition-colors">Marquees & Canopies</Link></li>
+              <li><Link href="/rentals?category=chairs" className="hover:text-white transition-colors">Gold &amp; Dior Chairs</Link></li>
+              <li><Link href="/rentals?category=tables" className="hover:text-white transition-colors">Banquet &amp; VIP Tables</Link></li>
+              <li><Link href="/rentals?category=canopies" className="hover:text-white transition-colors">Marquees &amp; Canopies</Link></li>
               <li><Link href="/rentals?category=generators" className="hover:text-white transition-colors">Silent Power Generators</Link></li>
-              <li><Link href="/rentals?category=pots-and-gas" className="hover:text-white transition-colors">Cooking Pots & Gas</Link></li>
-              <li><Link href="/rentals?category=decor-accessories" className="hover:text-white transition-colors">Royal Thrones & Props</Link></li>
+              <li><Link href="/rentals?category=pots-and-gas" className="hover:text-white transition-colors">Cooking Pots &amp; Gas</Link></li>
+              <li><Link href="/rentals?category=decor-accessories" className="hover:text-white transition-colors">Royal Thrones &amp; Props</Link></li>
             </ul>
           </div>
 
@@ -110,20 +130,20 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-gray-300">
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-[#C99A3D] mt-0.5 shrink-0" />
-                <span>0807 302 1840 / 0806 099 8745</span>
+                <span>{phone1}{phone2}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-[#C99A3D] mt-0.5 shrink-0" />
-                <span>alagaalayo@gmail.com</span>
+                <span>{email}</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#C99A3D] mt-0.5 shrink-0" />
-                <span>Lagos, Nigeria (Servicing Nationwide)</span>
+                <span>{address}</span>
               </li>
             </ul>
 
             <div className="mt-6 pt-4 border-t border-[#4A175B] text-xs space-y-1 text-gray-400">
-              <div><Link href="/terms" className="hover:underline">Terms & Conditions</Link> • <Link href="/privacy" className="hover:underline">Privacy Policy</Link></div>
+              <div><Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link> • <Link href="/privacy" className="hover:underline">Privacy Policy</Link></div>
               <div><Link href="/cancellation-policy" className="hover:underline">Cancellation Policy</Link> • <Link href="/accessibility" className="hover:underline">Accessibility</Link></div>
             </div>
           </div>
@@ -131,9 +151,10 @@ export default function Footer() {
 
         {/* Bottom Copy */}
         <div className="pt-8 border-t border-[#4A175B] text-center text-xs text-gray-400">
-          <p>© {new Date().getFullYear()} Alaga Alayo Events & Rentals. All rights reserved. Built with elegance and excellence.</p>
+          <p>© {new Date().getFullYear()} {companyName}. All rights reserved. Built with elegance and excellence.</p>
         </div>
       </div>
     </footer>
   );
 }
+

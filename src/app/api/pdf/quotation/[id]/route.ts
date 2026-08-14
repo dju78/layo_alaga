@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { generateQuotationPDF } from '@/lib/pdf';
+import { getBusinessSettings } from '@/lib/settings';
 
 export async function GET(
   req: NextRequest,
@@ -23,7 +24,8 @@ export async function GET(
       return new NextResponse('Quotation not found', { status: 404 });
     }
 
-    const pdfBuffer = generateQuotationPDF(quotation);
+    const settings = await getBusinessSettings();
+    const pdfBuffer = generateQuotationPDF(quotation, settings);
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
